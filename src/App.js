@@ -40,7 +40,7 @@ class App extends Component {
         level: 1,
         score: 0,
         snake: [start],
-        speed: 500,
+        speed: 400,
         tabs: [[start[X] + 3,start[Y] + 2]],
         doGrow: false,
         tabsEaten: 0,
@@ -72,7 +72,6 @@ class App extends Component {
       if(this.outOfBounds(head) || this.eatSelf(head[X],head[Y])) {
           clearInterval(this.state.interval);
           this.setState({lost:true});
-          alert("Lost");
       }
 
   }
@@ -98,18 +97,22 @@ class App extends Component {
 
   snakeClass(row, col) {
     if(_.reduce(this.state.snake, (a, b) => {
-      return a || (b[X] == row && b[Y] == col);
+      return a || (b[X] === row && b[Y] === col);
     }, false)) {
       return "snek";
     }
     return "";
   }
 
+  deathClass() {
+      if(this.state.lost) return "death";
+  }
+
   eatSelf(row, col) {
       var self = _.clone(this.state.snake);
       self.pop();
       if(_.reduce(self, (a, b) => {
-                return a || (b[X] == row && b[Y] == col);
+                return a || (b[X] === row && b[Y] === col);
             }, false)) {
             return true;
       }
@@ -124,21 +127,22 @@ class App extends Component {
   eatTab(row, col) {
     var oldLength = this.state.tabs.length;
     var tabs = _.reject(this.state.tabs, (a) => {
-            return (a[X] == row && a[Y] == col);
+            return (a[X] === row && a[Y] === col);
     });
 
     this.setState({tabs});
     if(tabs.length < oldLength) {
         this.setState({tabsEaten: this.state.tabsEaten + 1, score: this.state.score + 10, doGrow: true});
-        if( this.state.tabsEaten % 5 == 0 ) {
+        if( this.state.tabsEaten % 5 === 0 ) {
             this.levelUp();
         }
         this.addTab();
     }
   }
-tabClass(row, col) {
+
+  tabClass(row, col) {
         if(_.reduce(this.state.tabs, (a, b) => {
-                return a || (b[X] == row && b[Y] == col);
+                return a || (b[X] === row && b[Y] === col);
             }, false)) {
             return "tab";
         }
@@ -149,16 +153,17 @@ tabClass(row, col) {
   handleKeyPress(e) {
     switch(e.keyCode) {
         case LEFT:
-          this.setState({curr_direction: LEFT});
+
+          if(this.state.curr_direction !== RIGHT) this.setState({curr_direction: LEFT});
           break;
         case RIGHT:
-          this.setState({curr_direction: RIGHT});
+          if(this.state.curr_direction !== LEFT) this.setState({curr_direction: RIGHT});
           break;
         case UP:
-          this.setState({curr_direction:UP});
+          if(this.state.curr_direction !== DOWN) this.setState({curr_direction:UP});
           break;
         case DOWN:
-          this.setState({curr_direction:DOWN});
+          if(this.state.curr_direction !== UP) this.setState({curr_direction:DOWN});
           break;
         default:
           break;
@@ -174,7 +179,8 @@ tabClass(row, col) {
           <button disabled={!this.state.lost} onClick={()=>window.location.reload()}>Replay</button>
           {_.range(0,ROWS).map((r)=> {
               return (<div className="Row">
-                  {_.range(0,COLS).map((c)=><div className={"Col " + this.snakeClass(r,c) + this.tabClass(r,c)}>&nbsp;</div>)}
+                  {_.range(0,COLS).map((c)=><div className={"Col " + this.deathClass() + " " + this.snakeClass(r,c) +
+                    " " + this.tabClass(r,c)}>&nbsp;</div>)}
              </div>)
           })}
       </div>
