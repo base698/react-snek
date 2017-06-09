@@ -37,22 +37,31 @@ class App extends Component {
     super();
     this.state = {
         curr_direction: RIGHT,
+        level: 1,
+        score: 0,
         snake: [start],
-        interval: setInterval(this.doFrame.bind(this),800),
+        speed: 700,
         tabs: [[start[X] + 3,start[Y] + 2]],
         doGrow: false,
-        lost: false
-
+        tabsEaten: 0,
+        lost: false,
+        interval: 0
     }
   }
 
   componentWillMount(){
       document.addEventListener("keydown", this.handleKeyPress.bind(this));
+      this.runGame();
+  }
+
+  runGame() {
+      clearInterval(this.state.interval);
+      this.setState({interval: setInterval(this.doFrame.bind(this),this.state.speed)})
   }
 
   addTab() {
      var tabs = this.state.tabs;
-     tabs.push([Math.floor(Math.random() * ROWS), Math.floor(Math.random() * COLS)])
+     tabs.push([Math.floor(Math.random() * ROWS), Math.floor(Math.random() * COLS)]);
      this.setState({tabs:tabs})
   }
 
@@ -107,6 +116,11 @@ class App extends Component {
       return false;
   }
 
+  levelUp() {
+      this.setState({level: this.state.level + 1,speed:Math.ceil(this.state.speed * 0.9)});
+      this.runGame();
+  }
+
   eatTab(row, col) {
     var oldLength = this.state.tabs.length;
     var tabs = _.reject(this.state.tabs, (a) => {
@@ -115,12 +129,14 @@ class App extends Component {
 
     this.setState({tabs});
     if(tabs.length < oldLength) {
-        this.setState({doGrow: true});
+        this.setState({tabsEaten: this.state.tabsEaten + 1, score: this.state.score + 10, doGrow: true});
+        if( this.state.tabsEaten % 5 == 0 ) {
+            this.levelUp();
+        }
         this.addTab();
     }
   }
-
-  tabClass(row, col) {
+tabClass(row, col) {
         if(_.reduce(this.state.tabs, (a, b) => {
                 return a || (b[X] == row && b[Y] == col);
             }, false)) {
@@ -153,6 +169,8 @@ class App extends Component {
 
     return (
       <div className="App">
+          <div>Level: <span>{this.state.level}</span></div>
+          <div>Score: {this.state.score}</div>
           <button disabled={!this.state.lost} onClick={()=>window.location.reload()}>Replay</button>
           {_.range(0,ROWS).map((r)=> {
               return (<div className="Row">
