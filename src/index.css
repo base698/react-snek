@@ -14,3 +14,11 @@ body {
   display:inline-block;
   border: 1px solid lightgray;
 }
+
+.snek {
+  background: green;
+}
+
+.tab {
+  background: yellow;
+}
