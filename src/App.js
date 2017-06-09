@@ -40,7 +40,7 @@ class App extends Component {
         level: 1,
         score: 0,
         snake: [start],
-        speed: 700,
+        speed: 500,
         tabs: [[start[X] + 3,start[Y] + 2]],
         doGrow: false,
         tabsEaten: 0,

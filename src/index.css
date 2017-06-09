@@ -12,13 +12,21 @@ body {
   width:20px;
   height:20px;
   display:inline-block;
-  border: 1px solid lightgray;
+  background: #333;
+  border: 0px solid #ddd;
 }
 
-.snek {
+.Row .Col.snek {
   background: green;
 }
 
-.tab {
-  background: yellow;
+.Row .Col.tab {
+  animation: tab 0.1s infinite;
+}
+
+@keyframes tab {
+  0%   {background-color: red;}
+  25%  {background-color: yellow;}
+  50%  {background-color: blue;}
+  100% {background-color: green;}
 }
